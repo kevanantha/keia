@@ -1,7 +1,7 @@
 <template>
   <div style="text-align: center; min-height: 80vh">
     <Loading v-if="isLoading" tip="Loading Product..." />
-    <div style="">
+    <div v-else>
       <a-card hoverable style="width: 300px; margin: auto">
         <img
           style="height: 100%; width: 100%"
@@ -22,7 +22,7 @@
             <small>Total Price: </small>
             <h3 v-model="totalPrice">{{ totalPrice | totalPriceCurrency }}</h3>
           </div>
-          <a-button @click="addToCart(product._id)" icon="shopping-cart">Add to cart</a-button>
+          <a-button @click="addToCart(product.id)" icon="shopping-cart">Add to cart</a-button>
         </div>
       </a-card>
       <div class="text-center" style="margin-top: 2rem">
@@ -44,7 +44,7 @@ export default {
   components: {
     Loading
   },
-  data() {
+  data () {
     return {
       quantity: 1
     }
@@ -52,9 +52,9 @@ export default {
   methods: {
     ...mapActions('products', ['findOne']),
     ...mapActions('cart', { findAllCart: 'findAll' }),
-    onChange(value) {},
-    addToCart(productId) {
-      if (!localStorage.getItem('token')) {
+    onChange (value) {},
+    addToCart (productId) {
+      if (!this.$store.state.users.isLogin) {
         this.$message.error('You need to login first', 3)
         this.$router.push('/').catch(err => {})
       } else {
@@ -70,6 +70,7 @@ export default {
             this.findAllCart()
           })
           .catch(err => {
+            console.log(err)
             this.$message.error(err.response.data, 3)
           })
       }
@@ -78,16 +79,16 @@ export default {
   computed: {
     ...mapState('products', ['product', 'isLoading']),
     ...mapState('cart', ['carts']),
-    totalPrice() {
+    totalPrice () {
       return this.product.price * this.quantity
     }
   },
   filters: {
-    totalPriceCurrency(value) {
+    totalPriceCurrency (value) {
       return new Intl.NumberFormat('in-ID', { style: 'currency', currency: 'IDR' }).format(value)
     }
   },
-  mounted() {
+  mounted () {
     this.findOne(this.$route.params.productId).catch(err => {
       this.$message.error(err.response.data, 3)
     })

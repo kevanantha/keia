@@ -1,15 +1,15 @@
 <template>
   <div>
     <Loading v-if="isLoading" tip="Loading..." />
-    <a-card v-if="!isLoading" style="margin-bottom: 2rem" :title="cart.productId.name">
-      <div slot="extra">{{ cart.totalPrice | totalPriceCurrency }}</div>
+    <a-card v-if="!isLoading" style="margin-bottom: 2rem" :title="cart.product.name">
+      <div slot="extra">{{ cart.total_price | totalPriceCurrency }}</div>
       <div style="display: flex">
-        <img :src="cart.productId.image" height="100px" alt="cart.productId.name" />
+        <img :src="cart.product.image" height="100px" :alt="cart.product.name" />
         <a-form style="margin-left: 2rem">
           <a-form-item label="Quantity">
             <a-input-number
               :min="0"
-              :max="cart.productId.stock"
+              :max="cart.product.stock"
               :value="cart.quantity"
               @change="update"
             />
@@ -41,19 +41,19 @@ export default {
     Loading
   },
   props: ['cart'],
-  data() {
+  data () {
     return {
       isLoading: false
     }
   },
   filters: {
-    totalPriceCurrency(value) {
+    totalPriceCurrency (value) {
       return new Intl.NumberFormat('in-ID', { style: 'currency', currency: 'IDR' }).format(value)
     }
   },
   methods: {
     ...mapActions('cart', ['findAll']),
-    deleteCart(id) {
+    deleteCart (id) {
       this.$confirm({
         title: 'Are you sure delete this cart?',
         content: "You can't undo this action",
@@ -75,17 +75,17 @@ export default {
         }
       })
     },
-    update(v) {
+    update (v) {
       this.$store.commit('cart/updateQty', {
-        id: this.cart._id,
+        id: this.cart.id,
         qty: v,
-        totalPrice: v * this.cart.productId.price
+        totalPrice: v * this.cart.product.price
       })
       this.$store
         .dispatch('cart/updateQty', {
-          id: this.cart._id,
+          id: this.cart.id,
           qty: v,
-          totalPrice: v * this.cart.productId.price
+          totalPrice: v * this.cart.product.price
         })
         .catch(err => {
           this.$message.error(err.response.data)

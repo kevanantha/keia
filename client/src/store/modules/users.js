@@ -2,13 +2,17 @@ import api from '@/api/api'
 import { supabase } from '@/supabase'
 
 const state = {
-  isLogin: false
+  isLogin: undefined
 }
 
-const getters = {}
+const getters = {
+  isLogin(state) {
+    return state.isLogin
+  }
+}
 
 const actions = {
-  login ({ commit }, payload) {
+  login({ commit }, payload) {
     const { email, password } = payload
     return new Promise(async (resolve, reject) => {
       try {
@@ -45,7 +49,7 @@ const actions = {
   //     }
   //   })
   // },
-  register ({ commit }, payload) {
+  register({ commit }, payload) {
     const { email, password, phoneNumber, address } = payload
     return new Promise(async (resolve, reject) => {
       try {
@@ -67,14 +71,14 @@ const actions = {
       }
     })
   },
-  logout ({ commit }) {
+  logout({ commit }) {
     localStorage.clear()
     commit('isLogin')
   }
 }
 
 const mutations = {
-  isLogin (_, payload) {
+  isLogin(_, payload) {
     state.isLogin = payload
   }
   // isLogin (state) {

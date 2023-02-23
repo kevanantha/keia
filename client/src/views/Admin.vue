@@ -21,10 +21,6 @@
             <span>Orders</span>
           </router-link>
         </a-menu-item>
-        <a-menu-item key="4">
-          <a-icon type="user" />
-          <span>nav 3</span>
-        </a-menu-item>
       </a-menu>
     </a-layout-sider>
     <a-layout>

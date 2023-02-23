@@ -10,7 +10,7 @@ const state = {
 const getters = {}
 
 const actions = {
-  async findAll({ commit }) {
+  async findAll ({ commit }) {
     const { data, error } = await supabase.from('products').select('*')
     commit('setProducts', data)
   },
@@ -21,7 +21,7 @@ const actions = {
   //   })
   //   commit('setProducts', products)
   // },
-  create({ commit }, payload) {
+  create ({ commit }, payload) {
     return new Promise(async (resolve, reject) => {
       try {
         console.log('payload', payload)
@@ -51,7 +51,7 @@ const actions = {
   //     }
   //   })
   // },
-  update({ commit }, payload) {
+  update ({ commit }, payload) {
     let id
 
     for (let i of payload) {
@@ -74,7 +74,7 @@ const actions = {
       }
     })
   },
-  destroy({ commit }, id) {
+  destroy ({ commit }, id) {
     return new Promise(async (resolve, reject) => {
       try {
         const { data: res } = await api({
@@ -90,28 +90,40 @@ const actions = {
       }
     })
   },
-  findOne({ commit }, productId) {
+  findOne ({ commit }, productId) {
     return new Promise(async (resolve, reject) => {
       try {
-        const { data: product } = await api({
-          method: 'get',
-          url: `/products/${productId}`
-        })
-        commit('setDetailProduct', product)
-        resolve(product)
+        const { data, error } = await supabase.from('products').select('*').eq('id', productId).single()
+        if (error) console.error('error', error)
+        commit('setDetailProduct', data)
+        resolve(data)
       } catch (err) {
         reject(err)
       }
     })
   }
+  // findOne ({ commit }, productId) {
+  //   return new Promise(async (resolve, reject) => {
+  //     try {
+  //       const { data: product } = await api({
+  //         method: 'get',
+  //         url: `/products/${productId}`
+  //       })
+  //       commit('setDetailProduct', product)
+  //       resolve(product)
+  //     } catch (err) {
+  //       reject(err)
+  //     }
+  //   })
+  // }
 }
 
 const mutations = {
-  setProducts(state, products) {
+  setProducts (state, products) {
     state.products = products
     state.isLoading = false
   },
-  setDetailProduct(state, product) {
+  setDetailProduct (state, product) {
     state.product = product
     state.isLoading = false
   }

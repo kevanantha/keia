@@ -9,7 +9,7 @@
         <a-card hoverable style="width: 300px; margin: auto">
           <img style="height: 200px" :alt="product.name" :src="product.image" slot="cover" />
           <template class="ant-card-actions" slot="actions">
-            <router-link :to="product._id | detailProduct">
+            <router-link :to="product.id | detailProduct">
               <a-icon type="shopping" />
             </router-link>
             <!-- <a-icon type="edit" /> -->

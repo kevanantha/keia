@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import store from './store'
 import Home from './views/Home.vue'
 import Admin from './views/Admin.vue'
 import AdminAddProduct from './components/AdminAddProduct.vue'
@@ -22,9 +23,13 @@ export default new Router({
       path: '/cart',
       name: 'cart',
       component: Cart,
-      beforeEnter: (to, from, next) => {
-        if (!localStorage.getItem('token')) next('/404')
-        else next()
+      beforeEnter: async (to, from, next) => {
+        await getUserState()
+        if (!Object.keys(store.state.users.isLogin).length) {
+          next('/404')
+        } else {
+          next()
+        }
       }
     },
     {
@@ -42,11 +47,15 @@ export default new Router({
           name: 'add product',
           component: AdminAddProduct
         }
-      ]
-      // beforeEnter: (to, from, next) => {
-      //   if (!localStorage.getItem('token')) next('/404')
-      //   else next()
-      // }
+      ],
+      beforeEnter: async (to, from, next) => {
+        await getUserState()
+        if (!Object.keys(store.state.users.isLogin).length) {
+          next('/404')
+        } else {
+          next()
+        }
+      }
     },
     {
       path: '*',
@@ -55,3 +64,21 @@ export default new Router({
     }
   ]
 })
+
+function getUserState() {
+  return new Promise((resolve, reject) => {
+    console.log('getuser state', store.state.users.isLogin)
+    if (store.state.users.isLogin === undefined) {
+      const unwatch = store.watch(
+        () => store.state.users.isLogin,
+        (value) => {
+          console.log('val', value)
+          unwatch()
+          resolve(value)
+        }
+      )
+    } else {
+      resolve(store.state.users.isLogin)
+    }
+  })
+}

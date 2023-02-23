@@ -1,4 +1,5 @@
 import api from '@/api/api'
+import { supabase } from '@/supabase'
 
 const state = {
   carts: [],
@@ -7,13 +8,13 @@ const state = {
 
 const getters = {
   totalPrice() {
-    const subTotal = state.carts.map(cart => {
-      return Number(cart.totalPrice)
+    const subTotal = state.carts.map((cart) => {
+      return Number(cart.total_price)
     })
-    const total = subTotal.reduce((acc, current) => {
+
+    return subTotal.reduce((acc, current) => {
       return acc + current
     }, 0)
-    return total
   },
   totalCarts() {
     return state.carts.length
@@ -21,53 +22,47 @@ const getters = {
 }
 
 const actions = {
-  create({ commit }, payload) {
+  create({ commit, rootState }, payload) {
     const { quantity, totalPrice, productId } = payload
+    console.log('roo state', rootState)
     return new Promise(async (resolve, reject) => {
       try {
-        const { data: cart } = await api({
-          method: 'post',
-          url: '/carts/create',
-          data: {
-            productId,
-            quantity,
-            totalPrice
-          },
-          headers: {
-            access_token: localStorage.getItem('token')
-          }
+        const { data, error } = await supabase.from('carts').insert({
+          quantity,
+          total_price: totalPrice,
+          product_id: productId,
+          profile_id: rootState.users.isLogin.user.id,
+          updated_at: new Date(Date.now()).toISOString()
         })
-        commit('setCarts', cart)
-        resolve(cart)
+        if (error) console.error('error cart store', error)
+        console.log('data', data)
+        commit('setCarts', data)
+        resolve(data)
       } catch (err) {
         reject(err)
       }
     })
   },
-  async findAll({ commit }) {
-    const { data: carts } = await api({
-      method: 'get',
-      url: '/carts',
-      headers: {
-        access_token: localStorage.getItem('token')
-      }
-    })
+  async findAll({ commit, rootState }) {
+    const { data: carts, error } = await supabase
+      .from('carts')
+      .select(`*, product: products(*), profile: profiles(*)`)
+      .eq('profile_id', rootState.users.isLogin.user.id)
+    if (error) console.error('error find all carts', error)
     commit('findAll', carts)
   },
   updateQty(_, payload) {
+    const { id, qty, totalPrice } = payload
     return new Promise(async (resolve, reject) => {
       try {
-        const { data } = await api({
-          method: 'patch',
-          url: `/carts/${payload.id}/updateQty`,
-          data: {
-            quantity: payload.qty,
-            totalPrice: payload.totalPrice
-          },
-          headers: {
-            access_token: localStorage.getItem('token')
-          }
-        })
+        const {} = await supabase
+          .from('carts')
+          .update({
+            quantity: qty,
+            total_price: totalPrice,
+            updated_at: new Date(Date.now()).toISOString()
+          })
+          .eq('id', id)
         resolve()
       } catch (err) {
         reject(err)
@@ -102,7 +97,7 @@ const mutations = {
     state.isLoading = false
   },
   updateQty(state, payload) {
-    const selectedCart = state.carts.find(cart => cart._id == payload.id)
+    const selectedCart = state.carts.find((cart) => cart.id == payload.id)
     selectedCart.quantity = payload.qty
     selectedCart.totalPrice = payload.totalPrice
   }

@@ -6,7 +6,7 @@
       <h3 slot="extra">
         <b>Total Price: {{ totalPrice | totalPriceCurrency }}</b>
       </h3>
-      <CardCart v-for="cart in carts" :cart="cart" :key="cart._id" />
+      <CardCart v-for="cart in carts" :cart="cart" :key="cart.id" />
     </a-card>
   </div>
 </template>
@@ -22,11 +22,11 @@ export default {
     CardCart,
     Loading
   },
-  data() {
+  data () {
     return {}
   },
   filters: {
-    totalPriceCurrency(value) {
+    totalPriceCurrency (value = 0) {
       return new Intl.NumberFormat('in-ID', { style: 'currency', currency: 'IDR' }).format(value)
     }
   },
@@ -37,7 +37,7 @@ export default {
   methods: {
     ...mapActions('cart', { findAllCarts: 'findAll' })
   },
-  mounted() {
+  mounted () {
     this.findAllCarts()
   }
 }

@@ -30,7 +30,7 @@
       <LoginForm :visible="visible" :onClose="onClose" />
       <SignupForm :visible="visibleSignup" :onClose="onClose" />
       <a-layout-footer style="text-align: center">
-        Kevin Anantha ©{{ new Date().getFullYear() }}
+        Kevin Anantha (kevan) ©2019 - {{ new Date().getFullYear() }}
       </a-layout-footer>
     </a-layout>
   </div>
@@ -40,7 +40,7 @@
 import LoginForm from '@/components/LoginForm'
 import SignupForm from '@/components/SignupForm'
 import { mapState, mapGetters } from 'vuex'
-import {supabase} from "@/supabase";
+import { supabase } from '@/supabase'
 
 export default {
   name: 'App',
@@ -48,7 +48,7 @@ export default {
     LoginForm,
     SignupForm
   },
-  data() {
+  data () {
     return {
       visible: false,
       visibleSignup: false
@@ -59,24 +59,24 @@ export default {
     ...mapGetters('cart', ['totalCarts'])
   },
   methods: {
-    showDrawer() {
+    showDrawer () {
       this.visible = true
     },
-    showDrawerSignup() {
+    showDrawerSignup () {
       this.visibleSignup = true
     },
-    onClose() {
+    onClose () {
       this.visible = false
       this.visibleSignup = false
     },
-    logout() {
+    logout () {
       this.$store.dispatch('users/logout')
       this.$store.commit('users/isLogin')
       this.$message.success('Logged out successfully', 3)
       this.$router.push('/').catch(err => {})
     }
   },
-  async mounted() {
+  async mounted () {
     await supabase.auth.getSession().then(({ data }) => {
       this.$store.commit('users/isLogin', data.session)
     })
